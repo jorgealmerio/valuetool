@@ -1,5 +1,0 @@
-<RCC>
- <qresource prefix="/plugins/valuetool">
-  <file>icon.svg</file>
- </qresource>
-</RCC>
