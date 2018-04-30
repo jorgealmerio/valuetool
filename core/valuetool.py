@@ -59,6 +59,8 @@ class ValueTool(object):
 
     # create the widget to display information
     self.valuewidget = ValueWidget(self.iface)
+    self.valuewidget.cbxClick.setVisible(False) #Almerio: disabled until find error cause on using it
+    
     #self.tool.moved.connect(self.valuewidget.toolMoved) #Almerio: desativei essa linha
     #self.tool.pressed.connect(self.valuewidget.toolPressed) #Almerio: desativei essa linha
     self.valuewidget.cbxEnable.clicked.connect(self.toggleTool)

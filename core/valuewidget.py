@@ -35,7 +35,7 @@ from .ui_valuewidgetbase import Ui_ValueWidgetBase as Ui_Widget
 
 hasqwt=True
 try:
-    from PyQt4.Qwt5 import QwtPlot,QwtPlotCurve,QwtScaleDiv,QwtSymbol
+    from PyQt.Qwt5 import QwtPlot,QwtPlotCurve,QwtScaleDiv,QwtSymbol
 except:
     hasqwt=False
 
@@ -45,7 +45,7 @@ try:
     import matplotlib
     import matplotlib.pyplot as plt 
     import matplotlib.ticker as ticker
-    from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
+    from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 except:
     hasmpl=False
 if hasmpl:
@@ -75,7 +75,7 @@ class ValueWidget(QWidget, Ui_Widget):
 
         self.iface=iface
         self.canvas=self.iface.mapCanvas()
-        self.legend= QgsProject.instance() #self.iface.legendInterface()
+        self.legend= QgsProject.instance().mapLayers().values() #self.iface.legendInterface()
         self.logger = logging.getLogger('.'.join((__name__, 
                                         self.__class__.__name__)))
 
@@ -120,9 +120,9 @@ class ValueWidget(QWidget, Ui_Widget):
                           QSize(9, 9)))
             self.curve.attach(self.qwtPlot)
         else:
-            self.qwtPlot = QtGui.QLabel("Need Qwt >= 5.0 or matplotlib >= 1.0 !")
+            self.qwtPlot = QLabel("Need Qwt >= 5.0 or matplotlib >= 1.0 !")
 
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.qwtPlot.sizePolicy().hasHeightForWidth())
@@ -148,9 +148,9 @@ class ValueWidget(QWidget, Ui_Widget):
             self.pltCanvas.setObjectName("mplPlot")
             self.mplPlot = self.pltCanvas
         else:
-            self.mplPlot = QtGui.QLabel("Need Qwt >= 5.0 or matplotlib >= 1.0 !")
+            self.mplPlot = QLabel("Need Qwt >= 5.0 or matplotlib >= 1.0 !")
 
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.mplPlot.sizePolicy().hasHeightForWidth())
@@ -220,9 +220,9 @@ class ValueWidget(QWidget, Ui_Widget):
         if index == 0:
             allLayers=self.canvas.layers()
         elif index == 1:
-            allLayers=self.legend.layers()
+            allLayers=self.legend
         elif index == 2:
-            for layer in self.legend.layers():
+            for layer in self.legend:
                 if layer.id() in self.layersSelected:
                     allLayers.append(layer)
 
@@ -630,7 +630,7 @@ class ValueWidget(QWidget, Ui_Widget):
                         activeBands = []
                     # toggle all band# actions
                     group=action.parent()
-                    if group and not isinstance(group, QtGui.QActionGroup):
+                    if group and not isinstance(group, QActionGroup):
                         group=None
                     if group:
                         group.blockSignals(True)
@@ -659,7 +659,7 @@ class ValueWidget(QWidget, Ui_Widget):
     # event filter for band selection menu, do not close after toggling each band
     def eventFilter(self, obj, event):
         if event.type() in [QtCore.QEvent.MouseButtonRelease]:
-            if isinstance(obj, QtGui.QMenu):
+            if isinstance(obj, QMenu):
                 if obj.activeAction():
                     if not obj.activeAction().menu(): #if the selected action does not have a submenu
                         #eat the event, but trigger the function
