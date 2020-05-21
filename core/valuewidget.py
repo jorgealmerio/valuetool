@@ -350,6 +350,14 @@ class ValueWidget(QWidget, Ui_Widget):
                   extent = canvas.mapSettings().mapToLayerCoordinates( layer, extent );
 
                   ident = layer.dataProvider().identify(pos, QgsRaster.IdentifyFormatValue, canvas.extent(), width, height ).results()
+                  #   test add DEM value to have coordinate and height
+                  if ident is not None:
+                    if len(ident) == 1:
+                        try:
+                            self.labelStatus.setText(self.tr('Coordinate:') + ' (%f, %f,%f)' % (position.x(), position.y(),ident.get(1)))
+                        except:
+                            t = 100
+                                    
                 if not len( ident ) > 0:
                     continue
 
