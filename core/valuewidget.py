@@ -349,7 +349,7 @@ class ValueWidget(QWidget, Ui_Widget):
 
                   extent = canvas.mapSettings().mapToLayerCoordinates( layer, extent );
 
-                  ident = layer.dataProvider().identify(pos, QgsRaster.IdentifyFormatValue, canvas.extent(), width, height ).results()
+                  ident = layer.dataProvider().identify(pos, QgsRaster.IdentifyFormatValue, canvas.extent(), width, height ).results()     
                 if not len( ident ) > 0:
                     continue
 
@@ -374,7 +374,10 @@ class ValueWidget(QWidget, Ui_Widget):
                       bandvalue = "no data"
              
                 self.values.append((layernamewithband,str(bandvalue)))
-
+                
+                # mwindowshz Pull Request
+                self.labelStatus.setText(self.tr('Coordinate:') + '{},{},{}'.format(position.x(), position.y(),bandvalue))   
+                
                 if needextremum:
                   # estimated statistics
                   stats = self.getStats ( layer, iband )
@@ -505,8 +508,8 @@ class ValueWidget(QWidget, Ui_Widget):
             self.mplFig.canvas.draw()
 
     def invalidatePlot(self,replot=True):
-        if self.tabWidget.currentIndex()==2:
-            self.updateLayers()
+        #if self.tabWidget.currentIndex()==2:
+        self.updateLayers()        
         if not self.isActive:
             return
         self.statsChecked = False
