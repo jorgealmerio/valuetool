@@ -75,7 +75,7 @@ class ValueWidget(QWidget, Ui_Widget):
 
         self.iface=iface
         self.canvas=self.iface.mapCanvas()
-        self.legend= QgsProject.instance().mapLayers().values() #self.iface.legendInterface()
+        self.updateLayersAll() #self.iface.legendInterface()
         self.logger = logging.getLogger('.'.join((__name__, 
                                         self.__class__.__name__)))
 
@@ -217,9 +217,9 @@ class ValueWidget(QWidget, Ui_Widget):
 
         if not index: 
             index=self.cbxLayers.currentIndex()
-        if index == 0:
-            allLayers=self.canvas.layers()
-        elif index == 1:
+        if index == 0: #visible layers
+            allLayers=self.canvas.layers()            
+        elif index == 1: #all layers
             allLayers=self.legend
         elif index == 2:
             for layer in self.legend:
@@ -526,9 +526,14 @@ class ValueWidget(QWidget, Ui_Widget):
             self.setupUi_plot()
         if self.tabWidget.currentIndex()==2:
             self.updateLayers()
-
+    
+    # update list of All project layers
+    def updateLayersAll(self):
+        self.legend= list(QgsProject.instance().mapLayers().values())
+    
     # update active layers in table
     def updateLayers(self):
+        self.updateLayersAll()
         if self.tabWidget.currentIndex()!=2:
             return
 
