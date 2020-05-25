@@ -32,6 +32,7 @@ from qgis.PyQt.QtWidgets import *
 from qgis.core import *
 
 from .ui_valuewidgetbase import Ui_ValueWidgetBase as Ui_Widget
+import traceback
 
 hasqwt=True
 try:
@@ -262,7 +263,14 @@ class ValueWidget(QWidget, Ui_Widget):
 
         if debug > 0:
             print("%d active rasters, %d canvas layers" %(len(self.activeRasterLayers()),self.canvas.layerCount()))
-        layers = self.activeRasterLayers()
+        try:
+            layers = self.activeRasterLayers()
+        except Exception as e:
+            gotErr = [u'Error on activeRasterLayers(): {}'.format(type(e).__name__), Qgis.Warning]
+            QgsMessageLog.logMessage(traceback.format_exc(), 'valuetool', Qgis.Critical)
+            self.updateLayers()
+            return
+        
         if len(layers) == 0:
             if self.canvas.layerCount() > 0:
                 self.labelStatus.setText(self.tr("No valid layers to display - change layers in options"))
@@ -393,7 +401,12 @@ class ValueWidget(QWidget, Ui_Widget):
     def showValues(self):
         if self.tabWidget.currentIndex()==1:
             #TODO don't plot if there is no data to plot...
-            self.plot()
+            try:
+                self.plot()
+            except Exception as e:
+                gotErr = [u'Error on plot function: {}'.format(type(e).__name__), Qgis.Warning]
+                QgsMessageLog.logMessage(traceback.format_exc(), 'valuetool', Qgis.Critical)
+                self.updateLayers()            
         else:
             self.printInTable()
 
@@ -525,10 +538,11 @@ class ValueWidget(QWidget, Ui_Widget):
         self.invalidatePlot()
 
     def tabWidgetChanged(self):
+        self.updateLayers()
         if self.tabWidget.currentIndex()==1 and not self.qwtPlot:
             self.setupUi_plot()
-        if self.tabWidget.currentIndex()==2:
-            self.updateLayers()
+        #if self.tabWidget.currentIndex()==2:
+        #    self.updateLayers()
     
     # update list of All project layers
     def updateLayersAll(self):

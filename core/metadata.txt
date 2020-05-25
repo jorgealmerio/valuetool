@@ -6,7 +6,7 @@ about = Display raster layer values at current mouse position
 description = Display in a table or plot the values from the visible raster 
 	layers at the current mouse position
 category = Raster
-version = 3.0.3
+version = 3.0.4
 author = Jorge Almerio (maintainer)
 email=jorgealmerio@yahoo.com.br
 ; original author: Etienne Tourigny
@@ -14,8 +14,9 @@ email=jorgealmerio@yahoo.com.br
 ; other authors include : Richard Duivenvoorde, Ricardo Silva, Etienne Tourigny, Radim Blazek
 ; optional metadata entries
 changelog=
+    3.0.4 : fix RuntimeError (Selected layers options): wrapped C/C++ object of type QgsRasterLayer has been deleted (#4) (Thanks to AlisterH)
     3.0.3 :
-            fix RuntimeError: wrapped C/C++ object of type QgsRasterLayer has been deleted (#4)
+            fix RuntimeError (All layers options): wrapped C/C++ object of type QgsRasterLayer has been deleted (#4) (Thanks to AlisterH)
             Added height from DTM to coordinate string  (Thanks to mwindowshz) (#5)
     3.0.2 : fix bugs on "All layers" and "Selected layers" options
     3.0.1 : fix bugs on options Tab (Thanks to Salvatore Fiandaca)
