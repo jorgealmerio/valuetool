@@ -1,7 +1,7 @@
 ![valuetool icon](/core/icon.svg)
 # Value tool
 
-Qgis plugin to display in a table or plot the values from the visible raster layers (or mesh layers, from version 3.0.5) at the current mouse position
+Qgis plugin to display in table or plot values from raster layers (or mesh layers, from version 3.0.5) at the current mouse position
 
 
 ### DONATE
