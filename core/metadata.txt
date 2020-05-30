@@ -2,11 +2,9 @@
 name = Value Tool
 qgisMinimumVersion = 2.99
 qgisMaximumVersion = 3.99
-about = Display raster layer values at current mouse position
-description = Display in a table or plot the values from the visible raster 
-	layers at the current mouse position
+description = Qgis plugin to display in table or plot values from raster layers (or mesh layers, from version 3.0.5) at the current mouse position
 category = Raster
-version = 3.0.5
+version = 3.0.6
 author = Jorge Almerio (maintainer)
 email=jorgealmerio@yahoo.com.br
 ; original author: Etienne Tourigny
@@ -14,6 +12,7 @@ email=jorgealmerio@yahoo.com.br
 ; other authors include : Richard Duivenvoorde, Ricardo Silva, Etienne Tourigny, Radim Blazek
 ; optional metadata entries
 changelog=
+    3.0.6 : Tags and metadata update
     3.0.5 : Added support for mesh layers (#3) (ZedeN1 request)
     3.0.4 : fix RuntimeError (Selected layers options): wrapped C/C++ object of type QgsRasterLayer has been deleted (#4) (Thanks to AlisterH)
     3.0.3 :
@@ -38,10 +37,15 @@ changelog=
     0.5.1 : fixes for api changes in 1.9
     0.5.0 : compatibility for latest master (1.9) and other fixes and enhancements
 
-tags = raster
+tags = raster,mesh
 homepage = http://github.com/jorgealmerio/valuetool
 tracker = http://github.com/jorgealmerio/valuetool/issues
 repository = https://github.com/jorgealmerio/valuetool
 icon = icon.svg
 experimental = False
 deprecated = False
+about = Qgis plugin to display in table or plot values from raster layers (or mesh layers, from version 3.0.5) at the current mouse position
+    <p>If this plugin is useful for you, please consider to make a donation of any value to the Maintainer</p>
+    <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=G5ERSTGG4U426&item_name=Value+tool&currency_code=BRL&source=url" target="_blank">
+    <img border="0" alt="Donate" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif">
+    </a> 
