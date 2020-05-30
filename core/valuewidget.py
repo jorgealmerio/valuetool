@@ -91,6 +91,7 @@ class ValueWidget(QWidget, Ui_Widget):
         self.qwtPlot = None
         self.mplPlot = None
         self.mplLine = None
+        self.meshDS = None #mesh Dataset
 
         self.plotSelector.currentIndexChanged .connect(self.changePlot)
         self.tabWidget.currentChanged .connect(self.tabWidgetChanged)
@@ -99,76 +100,79 @@ class ValueWidget(QWidget, Ui_Widget):
         self.tableWidget2.cellChanged .connect(self.layerSelected)
 
     def setupUi_plot(self):
+        try:
+            # plot
+            self.plotSelector.setVisible( False )
+            self.cbxStats.setVisible( False )
+            # stats by default because estimated are fast
+            self.cbxStats.setChecked( True )
+            self.plotSelector.addItem( 'Qwt' )
+            self.plotSelector.addItem( 'mpl' )
 
-        # plot
-        self.plotSelector.setVisible( False )
-        self.cbxStats.setVisible( False )
-        # stats by default because estimated are fast
-        self.cbxStats.setChecked( True )
-        self.plotSelector.addItem( 'Qwt' )
-        self.plotSelector.addItem( 'mpl' )
-
-        # Page 2 - qwt
-        if self.hasqwt:
-            self.qwtPlot = QwtPlot(self.stackedWidget)
-            self.qwtPlot.setAutoFillBackground(False)
-            self.qwtPlot.setObjectName("qwtPlot")
-            self.curve = QwtPlotCurve()
-            self.curve.setSymbol(
-                QwtSymbol(QwtSymbol.Ellipse,
-                          QBrush(Qt.white),
-                          QPen(Qt.red, 2),
-                          QSize(9, 9)))
-            self.curve.attach(self.qwtPlot)
-        else:
-            self.qwtPlot = QLabel("Need Qwt >= 5.0 or matplotlib >= 1.0 !")
-
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.qwtPlot.sizePolicy().hasHeightForWidth())
-        self.qwtPlot.setSizePolicy(sizePolicy)
-        self.qwtPlot.updateGeometry()
-        self.stackedWidget.addWidget(self.qwtPlot)
-
-        #Page 3 - matplotlib
-        self.mplLine = None #make sure to invalidate when layers change
-        if self.hasmpl:
-            # mpl stuff
-            # should make figure light gray
-            self.mplBackground = None #http://www.scipy.org/Cookbook/Matplotlib/Animations
-            self.mplFig = plt.Figure(facecolor='w', edgecolor='w')
-            self.mplFig.subplots_adjust(left=0.1, right=0.975, bottom=0.13, top=0.95)
-            self.mplPlt = self.mplFig.add_subplot(111)   
-            self.mplPlt.tick_params(axis='both', which='major', labelsize=12)
-            self.mplPlt.tick_params(axis='both', which='minor', labelsize=10)                           
-            # qt stuff
-            self.pltCanvas = FigureCanvasQTAgg(self.mplFig)
-            self.pltCanvas.setParent(self.stackedWidget)
-            self.pltCanvas.setAutoFillBackground(False)
-            self.pltCanvas.setObjectName("mplPlot")
-            self.mplPlot = self.pltCanvas
-        else:
-            self.mplPlot = QLabel("Need Qwt >= 5.0 or matplotlib >= 1.0 !")
-
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.mplPlot.sizePolicy().hasHeightForWidth())
-        self.mplPlot.setSizePolicy(sizePolicy)
-        self.mplPlot.updateGeometry()
-        self.stackedWidget.addWidget(self.mplPlot)
-
-        if (self.hasqwt and self.hasmpl):
-            self.plotSelector.setEnabled(True)
-            self.plotSelector.setVisible(True)
-            self.plotSelector.setCurrentIndex(0);
-        else:
+            # Page 2 - qwt
             if self.hasqwt:
+                self.qwtPlot = QwtPlot(self.stackedWidget)
+                self.qwtPlot.setAutoFillBackground(False)
+                self.qwtPlot.setObjectName("qwtPlot")
+                self.curve = QwtPlotCurve()
+                self.curve.setSymbol(
+                    QwtSymbol(QwtSymbol.Ellipse,
+                              QBrush(Qt.white),
+                              QPen(Qt.red, 2),
+                              QSize(9, 9)))
+                self.curve.attach(self.qwtPlot)
+            else:
+                self.qwtPlot = QLabel("Need Qwt >= 5.0 or matplotlib >= 1.0 !")
+
+            sizePolicy = QSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
+            sizePolicy.setHorizontalStretch(0)
+            sizePolicy.setVerticalStretch(0)
+            sizePolicy.setHeightForWidth(self.qwtPlot.sizePolicy().hasHeightForWidth())
+            self.qwtPlot.setSizePolicy(sizePolicy)
+            self.qwtPlot.updateGeometry()
+            self.stackedWidget.addWidget(self.qwtPlot)
+
+            #Page 3 - matplotlib
+            self.mplLine = None #make sure to invalidate when layers change
+            if self.hasmpl:
+                # mpl stuff
+                # should make figure light gray
+                self.mplBackground = None #http://www.scipy.org/Cookbook/Matplotlib/Animations
+                self.mplFig = plt.Figure(facecolor='w', edgecolor='w')
+                self.mplFig.subplots_adjust(left=0.1, right=0.975, bottom=0.13, top=0.95)
+                self.mplPlt = self.mplFig.add_subplot(111)   
+                self.mplPlt.tick_params(axis='both', which='major', labelsize=12)
+                self.mplPlt.tick_params(axis='both', which='minor', labelsize=10)                           
+                # qt stuff
+                self.pltCanvas = FigureCanvasQTAgg(self.mplFig)
+                self.pltCanvas.setParent(self.stackedWidget)
+                self.pltCanvas.setAutoFillBackground(False)
+                self.pltCanvas.setObjectName("mplPlot")
+                self.mplPlot = self.pltCanvas
+            else:
+                self.mplPlot = QLabel("Need Qwt >= 5.0 or matplotlib >= 1.0 !")
+
+            sizePolicy = QSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
+            sizePolicy.setHorizontalStretch(0)
+            sizePolicy.setVerticalStretch(0)
+            sizePolicy.setHeightForWidth(self.mplPlot.sizePolicy().hasHeightForWidth())
+            self.mplPlot.setSizePolicy(sizePolicy)
+            self.mplPlot.updateGeometry()
+            self.stackedWidget.addWidget(self.mplPlot)
+
+            if (self.hasqwt and self.hasmpl):
+                self.plotSelector.setEnabled(True)
+                self.plotSelector.setVisible(True)
                 self.plotSelector.setCurrentIndex(0);
             else:
-                self.plotSelector.setCurrentIndex(1);
-        self.changePlot()
+                if self.hasqwt:
+                    self.plotSelector.setCurrentIndex(0);
+                else:
+                    self.plotSelector.setCurrentIndex(1);
+            self.changePlot()
+        except Exception as e:
+            gotErr = [u'Error setupUi_plot: {}'.format(type(e).__name__), Qgis.Warning]
+            QgsMessageLog.logMessage(traceback.format_exc(), 'valuetool', Qgis.Critical)
 
     def keyPressEvent( self, e ):
       if ( e.modifiers() == Qt.ControlModifier or e.modifiers() == Qt.MetaModifier ) and e.key() == Qt.Key_C:
@@ -232,27 +236,54 @@ class ValueWidget(QWidget, Ui_Widget):
                     layer.type()==QgsMapLayer.RasterLayer and \
                     layer.dataProvider() and \
                     (layer.dataProvider().capabilities() & QgsRasterDataProvider.IdentifyValue):
-                  layers.append(layer)
+                layers.append(layer)
+            if layer.type() == QgsMapLayer.MeshLayer:
+                layer.createMapRenderer(QgsRenderContext())
+                self.meshDS = QgsMeshDatasetIndex(0,0)
+                layers.append(layer)
 
         return layers
 
+    def countBands(self, layer):
+        if layer.type() == QgsMapLayer.RasterLayer:
+            resp = layer.bandCount()
+        elif layer.type() == QgsMapLayer.MeshLayer:
+            resp = layer.dataProvider().datasetGroupCount()
+        else:
+            resp=0
+        return resp
+    
+    def getValue(self, layer, pos):
+        ident={}
+        if layer.type() == QgsMapLayer.RasterLayer:
+            ident = layer.dataProvider().identify(pos, QgsRaster.IdentifyFormatValue ).results()
+        elif layer.type() == QgsMapLayer.MeshLayer:
+            try:                    
+                ident[1] = layer.datasetValue(self.meshDS, pos).scalar()
+            except:
+                ident[1] = None
+        else:
+            ident = None
+        return ident
+        
     def activeBandsForRaster(self,layer):
         activeBands=[]
-
-        if self.cbxBands.currentIndex() == 1 and layer.renderer():
-            activeBands = layer.renderer().usesBands()                 
-        elif self.cbxBands.currentIndex() == 2:
-            if layer.bandCount()==1:
-                activeBands=[1]
+        if layer.type()==QgsMapLayer.RasterLayer:
+            if self.cbxBands.currentIndex() == 1 and layer.renderer():
+                activeBands = layer.renderer().usesBands()                 
+            elif self.cbxBands.currentIndex() == 2:
+                if layer.bandCount()==1:
+                    activeBands=[1]
+                else:
+                    activeBands = self.layerBands[layer.id()] if (layer.id() in self.layerBands) else []
             else:
-                activeBands = self.layerBands[layer.id()] if (layer.id() in self.layerBands) else []
-        else:
-            activeBands = list(range(1,layer.bandCount()+1))
+                activeBands = list(range(1,layer.bandCount()+1))
+        elif layer.type()==QgsMapLayer.MeshLayer:
+            activeBands = list(range(1,layer.dataProvider().datasetGroupCount()+1))
         
         return activeBands
 
-    def printValue(self,position):
-
+    def printValue(self,position):        
         if debug > 0:
             print(position)
 
@@ -290,19 +321,21 @@ class ValueWidget(QWidget, Ui_Widget):
         layersWOStatistics=[]
 
         for layer in layers:
+            if layer.type() == QgsMapLayer.RasterLayer:
+                nrow+=layer.bandCount()
+                rasterlayers.append(layer)
 
-            nrow+=layer.bandCount()
-            rasterlayers.append(layer)
+                # check statistics for each band
+                if needextremum:
+                    for i in range( 1,layer.bandCount()+1 ):
+                        has_stats = self.getStats ( layer, i ) is not None
+                        if not layer.id() in self.layerMap and not has_stats\
+                                and not layer in layersWOStatistics:
+                            layersWOStatistics.append(layer)
+            if layer.type() == QgsMapLayer.MeshLayer:
+                rasterlayers.append(layer)
 
-            # check statistics for each band
-            if needextremum:
-                for i in range( 1,layer.bandCount()+1 ):
-                    has_stats = self.getStats ( layer, i ) is not None
-                    if not layer.id() in self.layerMap and not has_stats\
-                            and not layer in layersWOStatistics:
-                        layersWOStatistics.append(layer)
-
-        if layersWOStatistics and not self.statsChecked:
+        if layer.type() == QgsMapLayer.RasterLayer and layersWOStatistics and not self.statsChecked:
           self.calculateStatistics(layersWOStatistics)
                   
         irow=0
@@ -314,7 +347,7 @@ class ValueWidget(QWidget, Ui_Widget):
 
         # TODO - calculate the min/max values only once, instead of every time!!!
         # keep them in a dict() with key=layer.id()
-                
+               
         for layer in rasterlayers:
             layername=str(layer.name())
             layerSrs = layer.crs()
@@ -345,11 +378,11 @@ class ValueWidget(QWidget, Ui_Widget):
                 # maintain same behaviour as in 1.8 and print out of extent
                 if not layer.dataProvider().extent().contains( pos ):
                   ident = dict()
-                  for iband in range(1,layer.bandCount()+1):
+                  for iband in range(1,self.countBands(layer)+1):
                     ident[iband] = str(self.tr('out of extent'))
                 # we can only use context if layer is not projected
                 elif layer.dataProvider().crs() != canvas.mapSettings().destinationCrs(): #Almerio: tinha no inicio: "canvas.hasCrsTransformEnabled() and " but it is always enabled
-                  ident = layer.dataProvider().identify(pos, QgsRaster.IdentifyFormatValue ).results()
+                  ident = self.getValue(layer, pos)
                 else:
                   extent = canvas.extent()
                   width = round(extent.width() / canvas.mapUnitsPerPixel());
@@ -358,6 +391,7 @@ class ValueWidget(QWidget, Ui_Widget):
                   extent = canvas.mapSettings().mapToLayerCoordinates( layer, extent );
 
                   ident = layer.dataProvider().identify(pos, QgsRaster.IdentifyFormatValue, canvas.extent(), width, height ).results()     
+                
                 if not len( ident ) > 0:
                     continue
 
@@ -450,9 +484,10 @@ class ValueWidget(QWidget, Ui_Widget):
       else:
         self.stats[layer] = {}
       
-      if force or layer.dataProvider().hasStatistics( bandNo, QgsRasterBandStats.Min | QgsRasterBandStats.Min, QgsRectangle(), self.statsSampleSize ):
-        self.stats[layer][bandNo] = layer.dataProvider().bandStatistics( bandNo, QgsRasterBandStats.Min | QgsRasterBandStats.Min, QgsRectangle(), self.statsSampleSize )
-        return self.stats[layer][bandNo]
+      if layer.type() == QgsMapLayer.RasterLayer:
+          if force or layer.dataProvider().hasStatistics( bandNo, QgsRasterBandStats.Min | QgsRasterBandStats.Min, QgsRectangle(), self.statsSampleSize ):
+            self.stats[layer][bandNo] = layer.dataProvider().bandStatistics( bandNo, QgsRasterBandStats.Min | QgsRasterBandStats.Min, QgsRectangle(), self.statsSampleSize )
+            return self.stats[layer][bandNo]
 
       return None
 
@@ -538,9 +573,14 @@ class ValueWidget(QWidget, Ui_Widget):
         self.invalidatePlot()
 
     def tabWidgetChanged(self):
-        self.updateLayers()
-        if self.tabWidget.currentIndex()==1 and not self.qwtPlot:
-            self.setupUi_plot()
+        #self.tabWidgetPage2.setVisible(False)
+        try:
+            self.updateLayers()
+            if self.tabWidget.currentIndex()==1 and not self.qwtPlot:
+                self.setupUi_plot()
+        except Exception as e:
+            gotErr = [u'Error tabWidgetChanged: {}'.format(type(e).__name__), Qgis.Warning]
+            QgsMessageLog.logMessage(traceback.format_exc(), 'valuetool', Qgis.Critical)
         #if self.tabWidget.currentIndex()==2:
         #    self.updateLayers()
     
@@ -589,7 +629,7 @@ class ValueWidget(QWidget, Ui_Widget):
             group=QActionGroup(button)
             group.setExclusive( False )
             group.triggered.connect(self.bandSelected)
-            if self.cbxBands.currentIndex()==2 and layer.bandCount()>1:
+            if self.cbxBands.currentIndex()==2 and self.countBands(layer)>1:
                 menu=QMenu()
                 menu.installEventFilter(self)
 
@@ -644,10 +684,10 @@ class ValueWidget(QWidget, Ui_Widget):
 
         # special actions All/None
         if layerBand == -1:
-            for layer in self.legend.layers():
+            for layer in self.legend: #self.legend
                 if layer.id() == layerID:
                     if toggleAll:
-                        activeBands = list(range(1,layer.bandCount()+1))
+                        activeBands = list(range(1,self.countBands(layer)+1))
                     else:
                         activeBands = []
                     # toggle all band# actions
@@ -693,7 +733,7 @@ class ValueWidget(QWidget, Ui_Widget):
         return  self.isVisible() and not self.visibleRegion().isEmpty() \
                 and self.isActive and self.tabWidget.currentIndex()!=2 
 
-    def toolMoved(self, position):
+    def toolMoved(self, position):        
         if self.shouldPrintValues() and not self.cbxClick.isChecked():
             self.printValue(self.canvas.getCoordinateTransform().toMapCoordinates(position))
 
