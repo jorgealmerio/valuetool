@@ -279,7 +279,7 @@ class ValueWidget(QWidget, Ui_Widget):
             else:
                 activeBands = list(range(1,layer.bandCount()+1))
         elif layer.type()==QgsMapLayer.MeshLayer:
-            activeBands = list(range(1,layer.dataProvider().datasetGroupCount()+1))
+            activeBands = [1] #list(range(1,layer.dataProvider().datasetGroupCount()+1))
         
         return activeBands
 
@@ -390,7 +390,7 @@ class ValueWidget(QWidget, Ui_Widget):
 
                   extent = canvas.mapSettings().mapToLayerCoordinates( layer, extent );
 
-                  ident = layer.dataProvider().identify(pos, QgsRaster.IdentifyFormatValue, canvas.extent(), width, height ).results()     
+                  ident = self.getValue(layer, pos)
                 
                 if not len( ident ) > 0:
                     continue
@@ -406,7 +406,10 @@ class ValueWidget(QWidget, Ui_Widget):
               for iband in activeBands: # loop over the active bands
                 layernamewithband=layername
                 if ident is not None and len(ident)>1:
-                    layernamewithband+=' '+layer.bandName(iband)
+                    if layer.type() == QgsMapLayer.RasterLayer:
+                        layernamewithband+=' '+layer.bandName(iband)
+                    else:
+                        layernamewithband+=' '+'0'
 
                 if not ident or iband not in ident: # should not happen
                   bandvalue = "?"
@@ -607,7 +610,6 @@ class ValueWidget(QWidget, Ui_Widget):
 
         j=0
         for layer in layers:
-
             item = QTableWidgetItem()
             item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
             if self.cbxLayers.currentIndex() != 2:
@@ -629,7 +631,7 @@ class ValueWidget(QWidget, Ui_Widget):
             group=QActionGroup(button)
             group.setExclusive( False )
             group.triggered.connect(self.bandSelected)
-            if self.cbxBands.currentIndex()==2 and self.countBands(layer)>1:
+            if layer.type() == QgsMapLayer.RasterLayer and self.cbxBands.currentIndex()==2 and self.countBands(layer)>1:
                 menu=QMenu()
                 menu.installEventFilter(self)
 

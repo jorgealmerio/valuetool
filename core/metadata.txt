@@ -4,7 +4,7 @@ qgisMinimumVersion = 2.99
 qgisMaximumVersion = 3.99
 description = Qgis plugin to display in table or plot values from raster layers (or mesh layers, from version 3.0.5) at the current mouse position
 category = Raster
-version = 3.0.6
+version = 3.0.7
 author = Jorge Almerio (maintainer)
 email=jorgealmerio@yahoo.com.br
 ; original author: Etienne Tourigny
@@ -12,6 +12,7 @@ email=jorgealmerio@yahoo.com.br
 ; other authors include : Richard Duivenvoorde, Ricardo Silva, Etienne Tourigny, Radim Blazek
 ; optional metadata entries
 changelog=
+    3.0.7 : Bug fix (#7 by AlisterH)
     3.0.6 : Tags and metadata update
     3.0.5 : Added support for mesh layers (#3) (ZedeN1 request)
     3.0.4 : fix RuntimeError (Selected layers options): wrapped C/C++ object of type QgsRasterLayer has been deleted (#4) (Thanks to AlisterH)
