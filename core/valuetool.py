@@ -22,7 +22,7 @@ from builtins import object
 
 from qgis.PyQt.QtCore import *
 from qgis.PyQt.QtGui import *
-from qgis.PyQt.QtWidgets import QAction, QDockWidget
+from qgis.PyQt.QtWidgets import QAction, QDockWidget, QApplication
 from qgis.core import *
 
 from .valuewidget import ValueWidget
@@ -98,6 +98,7 @@ class ValueTool(object):
     self.valuewidget.changeActive(True, False)
       
   def activateTool(self, changeActive=True):
+    self.canvas.setCursor(self.tool.cursor)
     if self.valuewidget.cbxClick.isChecked():
       self.saveTool=self.canvas.mapTool()
       self.canvas.setMapTool(self.tool)
@@ -107,6 +108,7 @@ class ValueTool(object):
       self.valuewidget.changeActive(True)
 
   def deactivateTool(self, changeActive=True):
+    QApplication.restoreOverrideCursor()
     if self.canvas.mapTool() and self.canvas.mapTool() == self.tool:
       # block signals to avoid recursion
       self.tool.blockSignals(True)
