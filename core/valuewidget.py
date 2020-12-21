@@ -92,6 +92,9 @@ class ValueWidget(QWidget, Ui_Widget):
         self.mplPlot = None
         self.mplLine = None
         self.meshDS = None #mesh Dataset
+        self.actDSGrp = None #mesh active Dataset Group
+        self.dsInd = None #mesh active Dataset in Group
+        self.meshGrpDS = {} #dictionary={meshLayerID: [activeGroup, activeDataset]}
 
         self.plotSelector.currentIndexChanged .connect(self.changePlot)
         self.tabWidget.currentChanged .connect(self.tabWidgetChanged)
@@ -219,6 +222,7 @@ class ValueWidget(QWidget, Ui_Widget):
     def activeRasterLayers(self, index=None):
         layers=[]
         allLayers=[]
+        self.meshGrpDS={}
 
         if not index: 
             index=self.cbxLayers.currentIndex()
@@ -239,7 +243,10 @@ class ValueWidget(QWidget, Ui_Widget):
                 layers.append(layer)
             if layer.type() == QgsMapLayer.MeshLayer:
                 layer.createMapRenderer(QgsRenderContext())
-                self.meshDS = QgsMeshDatasetIndex(0,0)
+                self.actDSGrp = layer.rendererSettings().activeScalarDatasetGroup()
+                self.dsInd = self.currentDatasetsForDatasetGroup(layer,self.actDSGrp)[0]
+                self.meshGrpDS[layer.id()]=[self.actDSGrp, self.dsInd]
+                self.meshDS = QgsMeshDatasetIndex(self.actDSGrp, self.dsInd)
                 layers.append(layer)
 
         return layers
@@ -405,11 +412,12 @@ class ValueWidget(QWidget, Ui_Widget):
                   
               for iband in activeBands: # loop over the active bands
                 layernamewithband=layername
+                if layer.type() == QgsMapLayer.MeshLayer:
+                    grpDS = self.meshGrpDS[layer.id()]
+                    layernamewithband+=' '+'[{},{}]'.format(grpDS[0],grpDS[1])
                 if ident is not None and len(ident)>1:
                     if layer.type() == QgsMapLayer.RasterLayer:
                         layernamewithband+=' '+layer.bandName(iband)
-                    else:
-                        layernamewithband+=' '+'0'
 
                 if not ident or iband not in ident: # should not happen
                   bandvalue = "?"
@@ -742,5 +750,16 @@ class ValueWidget(QWidget, Ui_Widget):
     def toolPressed(self, position):
         if self.shouldPrintValues() and self.cbxClick.isChecked():
             self.printValue(self.canvas.getCoordinateTransform().toMapCoordinates(position))
+            
+    def currentDatasetsForDatasetGroup(self, layer,dataset_group):
+        #dataset_group = self.current_dataset_group()
+        if layer.temporalProperties().isActive and self.canvas.mapSettings().isTemporal():
+            timeRange = self.canvas.temporalRange()
+            dataset_index = layer.datasetIndexAtTime(timeRange, dataset_group).dataset()
+        else:
+            dataset_index = layer.staticScalarDatasetIndex().dataset()
 
-
+        if dataset_index < 0:
+            return [0] #if error, return the first dataset, 0
+        else:
+            return [dataset_index]
