@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>343</width>
+    <width>349</width>
     <height>309</height>
    </rect>
   </property>
@@ -79,6 +79,13 @@
             </property>
            </spacer>
           </item>
+          <item>
+           <widget class="QPushButton" name="btnSaveSettings">
+            <property name="text">
+             <string>Save Settings</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -106,7 +113,16 @@
        <item>
         <widget class="QWidget" name="graphControls" native="true">
          <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <property name="margin">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
            <number>0</number>
           </property>
           <item>

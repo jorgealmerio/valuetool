@@ -65,6 +65,7 @@ class ValueTool(object):
     #self.tool.pressed.connect(self.valuewidget.toolPressed) #Almerio: desativei essa linha
     self.valuewidget.cbxEnable.clicked.connect(self.toggleTool)
     self.valuewidget.cbxClick.clicked.connect(self.toggleMouseClick)
+    # self.valuewidget.btnSaveSettings.clicked.connect(self.saveSettings) #btn to save settings suppressed, save settings on unloading
 
     # create the dockwidget with the correct parent and add the valuewidget
     self.valuedockwidget=QDockWidget("Value Tool" , self.iface.mainWindow() )
@@ -75,9 +76,19 @@ class ValueTool(object):
     # add the dockwidget to iface
     self.iface.addDockWidget(Qt.LeftDockWidgetArea,self.valuedockwidget)
     #self.valuewidget.show()
+  
+  #save settings
+  def saveSettings(self):    
+    QSettings().setValue('plugins/valuetool/cbxEnable', self.valuewidget.cbxEnable.isChecked())
+    QSettings().setValue('plugins/valuetool/cbxDigits', self.valuewidget.cbxDigits.isChecked())
+    QSettings().setValue('plugins/valuetool/spinDigits', self.valuewidget.spinDigits.value())
+    QSettings().setValue('plugins/valuetool/tableWidget/Col0Width', self.valuewidget.tableWidget.columnWidth(0)) #first column 'Layer'
+    QSettings().setValue('plugins/valuetool/tableWidget/Col1Width', self.valuewidget.tableWidget.columnWidth(1)) #second column 'value'
+    #QSettings().setValue('plugins/valuetool/mouseClick', self.valuewidget.cbxClick.isChecked())
+    ##self.iface.messageBar().pushMessage("Value Tool", "Settings saved!", level=Qgis.Info, duration=5)
 
-  def unload(self):
-    QSettings().setValue('plugins/valuetool/mouseClick', self.valuewidget.cbxClick.isChecked())
+  def unload(self):    
+    self.saveSettings()
     self.valuedockwidget.close()
     #self.deactivateTool() #Almerio: error on unload plugin, so I disabled this line
     # remove the dockwidget from iface

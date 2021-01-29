@@ -83,7 +83,8 @@ class ValueWidget(QWidget, Ui_Widget):
         QWidget.__init__(self)
         self.setupUi(self)
         self.tabWidget.setEnabled(False)
-        self.cbxClick.setChecked( QSettings().value('plugins/valuetool/mouseClick', False, type=bool ) )
+        self.btnSaveSettings.setVisible(False) # btn to save settings no necessary, settings are saved on unloading
+        self.loadSettings()
 
         #self.setupUi_plot()
         #don't setup plot until Plot tab is clicked - workaround for bug #7450
@@ -101,6 +102,17 @@ class ValueWidget(QWidget, Ui_Widget):
         self.cbxLayers.currentIndexChanged .connect(self.updateLayers)
         self.cbxBands.currentIndexChanged .connect(self.updateLayers)
         self.tableWidget2.cellChanged .connect(self.layerSelected)
+
+    def loadSettings(self):
+        self.cbxClick.setChecked( QSettings().value('plugins/valuetool/mouseClick', False, type=bool ) )
+        cbxEnable = QSettings().value('plugins/valuetool/cbxEnable', True, type=bool ) 
+        self.cbxEnable.setChecked( cbxEnable )
+        self.changeActive(cbxEnable)
+
+        self.cbxDigits.setChecked(QSettings().value('plugins/valuetool/cbxDigits', False, type=bool ) )
+        self.spinDigits.setValue(QSettings().value('plugins/valuetool/spinDigits', 2, type=int ) )
+        self.tableWidget.setColumnWidth(0, QSettings().value('plugins/valuetool/tableWidget/Col0Width', 200, type=int ) ) #first column 'Layer'
+        self.tableWidget.setColumnWidth(1, QSettings().value('plugins/valuetool/tableWidget/Col1Width', 50, type=int ) ) #second column 'value'
 
     def setupUi_plot(self):
         try:
@@ -204,8 +216,11 @@ class ValueWidget(QWidget, Ui_Widget):
                 self.canvas.xyCoordinates.connect(self.printValue)
         else:
             self.cbxEnable.setCheckState(Qt.Unchecked)
-            self.canvas.layersChanged.disconnect(self.invalidatePlot)
-            self.canvas.xyCoordinates.disconnect(self.printValue)
+            try:
+                self.canvas.layersChanged.disconnect(self.invalidatePlot)
+                self.canvas.xyCoordinates.disconnect(self.printValue)
+            except:
+                pass
 
         if gui:
             self.tabWidget.setEnabled(active)
