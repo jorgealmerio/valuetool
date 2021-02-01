@@ -22,8 +22,9 @@ from builtins import str
 from builtins import range
 
 import logging
+# use logging.DEBUG for linux debug
 # change the level back to logging.WARNING(the default) before releasing
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.WARNING)
 
 from qgis.PyQt import QtCore, QtGui
 from qgis.PyQt.QtCore import *
