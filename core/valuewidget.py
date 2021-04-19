@@ -34,6 +34,7 @@ from qgis.core import *
 
 from .ui_valuewidgetbase import Ui_ValueWidgetBase as Ui_Widget
 import traceback
+from math import floor
 
 hasqwt=True
 try:
@@ -112,8 +113,10 @@ class ValueWidget(QWidget, Ui_Widget):
 
         self.cbxDigits.setChecked(QSettings().value('plugins/valuetool/cbxDigits', False, type=bool ) )
         self.spinDigits.setValue(QSettings().value('plugins/valuetool/spinDigits', 2, type=int ) )
-        self.tableWidget.setColumnWidth(0, QSettings().value('plugins/valuetool/tableWidget/Col0Width', 200, type=int ) ) #first column 'Layer'
-        self.tableWidget.setColumnWidth(1, QSettings().value('plugins/valuetool/tableWidget/Col1Width', 50, type=int ) ) #second column 'value'
+        self.tableWidget.setColumnWidth(0, 150 ) # first column 'Layer'
+        self.tableWidget.setColumnWidth(1, 80 ) # second column 'value'
+        self.tableWidget.setColumnWidth(2, 50 ) # third column 'row'          
+        self.tableWidget.setColumnWidth(3, 50 ) # fourth column 'column'
 
     def setupUi_plot(self):
         try:
@@ -288,7 +291,23 @@ class ValueWidget(QWidget, Ui_Widget):
         else:
             ident = None
         return ident
-        
+    
+    def getRowCol(self, layer, pos):
+        # get row and column indices of a RasterLayer
+        # indices are zero based
+        rowCol={}
+        if layer.type() == QgsMapLayer.RasterLayer:
+            extent = layer.dataProvider().extent()
+            xres = extent.width() / layer.dataProvider().xSize()
+            yres = extent.height() / layer.dataProvider().ySize()
+            
+            rowCol["row"] = int(floor((pos.x() - extent.xMinimum()) / xres))
+            rowCol["col"] = int(floor((extent.yMaximum() - pos.y()) / yres))
+        else:
+            rowCol["row"] = ""
+            rowCol["col"] = ""
+        return rowCol
+    
     def activeBandsForRaster(self,layer):
         activeBands=[]
         if layer.type()==QgsMapLayer.RasterLayer:
@@ -401,11 +420,15 @@ class ValueWidget(QWidget, Ui_Widget):
                 # maintain same behaviour as in 1.8 and print out of extent
                 if not layer.dataProvider().extent().contains( pos ):
                   ident = dict()
+                  rowCol = {"row":"","col":""}
+
                   for iband in range(1,self.countBands(layer)+1):
                     ident[iband] = str(self.tr('out of extent'))
                 # we can only use context if layer is not projected
                 elif layer.dataProvider().crs() != canvas.mapSettings().destinationCrs(): #Almerio: tinha no inicio: "canvas.hasCrsTransformEnabled() and " but it is always enabled
                   ident = self.getValue(layer, pos)
+                  rowCol = self.getRowCol(layer, pos)
+                  
                 else:
                   extent = canvas.extent()
                   width = round(extent.width() / canvas.mapUnitsPerPixel());
@@ -414,12 +437,15 @@ class ValueWidget(QWidget, Ui_Widget):
                   extent = canvas.mapSettings().mapToLayerCoordinates( layer, extent );
 
                   ident = self.getValue(layer, pos)
+                  rowCol = self.getRowCol(layer, pos)
                 
                 if not len( ident ) > 0:
                     continue
 
               # if given no position, set values to 0
               if position is None and ident is not None and iter(ident.keys()) is not None:
+                  rowCol = {"row":"","col":""}
+                  
                   for key in ident.keys():
                       ident[key] = layer.dataProvider().noDataValue(key)
 
@@ -441,8 +467,8 @@ class ValueWidget(QWidget, Ui_Widget):
                   bandvalue = ident[iband]
                   if bandvalue is None:
                       bandvalue = "no data"
-             
-                self.values.append((layernamewithband,str(bandvalue)))
+                
+                self.values.append((layernamewithband, str(bandvalue), str(rowCol["row"]), str(rowCol["col"])))
                 
                 # mwindowshz Pull Request
                 self.labelStatus.setText(self.tr('Coordinate:') + '{},{},{}'.format(position.x(), position.y(),bandvalue))   
@@ -525,8 +551,8 @@ class ValueWidget(QWidget, Ui_Widget):
 
         irow=0
         for row in self.values:
-          layername,value=row
-          
+          layername, value, idx_row, idx_column = row
+
           # limit number of decimal places if requested
           if self.cbxDigits.isChecked():
               try:
@@ -538,9 +564,13 @@ class ValueWidget(QWidget, Ui_Widget):
               # create the item
               self.tableWidget.setItem(irow,0,QTableWidgetItem())
               self.tableWidget.setItem(irow,1,QTableWidgetItem())
+              self.tableWidget.setItem(irow,2,QTableWidgetItem())
+              self.tableWidget.setItem(irow,3,QTableWidgetItem())
 
           self.tableWidget.item(irow,0).setText(layername)
           self.tableWidget.item(irow,1).setText(value)
+          self.tableWidget.item(irow,2).setText(idx_row)
+          self.tableWidget.item(irow,3).setText(idx_column)
           irow+=1
 
 
