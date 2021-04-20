@@ -301,8 +301,8 @@ class ValueWidget(QWidget, Ui_Widget):
             xres = extent.width() / layer.dataProvider().xSize()
             yres = extent.height() / layer.dataProvider().ySize()
             
-            rowCol["row"] = int(floor((pos.x() - extent.xMinimum()) / xres))
-            rowCol["col"] = int(floor((extent.yMaximum() - pos.y()) / yres))
+            rowCol["row"] = int(floor((extent.yMaximum() - pos.y()) / yres))
+            rowCol["col"] = int(floor((pos.x() - extent.xMinimum()) / xres))
         else:
             rowCol["row"] = ""
             rowCol["col"] = ""
