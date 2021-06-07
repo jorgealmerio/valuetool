@@ -578,7 +578,7 @@ class ValueWidget(QWidget, Ui_Widget):
         numvalues=[]
         if ( self.hasqwt or self.hasmpl ):
             for row in self.values:
-                layername,value=row
+                layername, value, *_ = row
                 try:
                     numvalues.append(float(value))
                 except:
