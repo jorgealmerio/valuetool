@@ -413,7 +413,8 @@ class ValueWidget(QWidget, Ui_Widget):
             if True: # for QGIS >= 1.9
               if not layer.dataProvider():
                 continue
-
+              
+              totalBands = self.countBands(layer)
               activeBands = self.activeBandsForRaster(layer)
               ident = None
               if position is not None:
@@ -456,7 +457,7 @@ class ValueWidget(QWidget, Ui_Widget):
                 if layer.type() == QgsMapLayer.MeshLayer:
                     grpDS = self.meshGrpDS[layer.id()]
                     layernamewithband+=' '+'[{},{}]'.format(grpDS[0],grpDS[1])
-                if len(activeBands) > 1 or activeBands[0] != 1:
+                if totalBands > 1:
                     if layer.type() == QgsMapLayer.RasterLayer:
                         layernamewithband+=' '+layer.bandName(iband)
                 if not ident or iband not in ident: # should not happen
