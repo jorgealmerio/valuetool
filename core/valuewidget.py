@@ -34,7 +34,7 @@ from qgis.core import *
 
 from .ui_valuewidgetbase import Ui_ValueWidgetBase as Ui_Widget
 import traceback
-from math import floor
+import math
 
 hasqwt=True
 try:
@@ -279,15 +279,17 @@ class ValueWidget(QWidget, Ui_Widget):
             resp=0
         return resp
     
-    def getValue(self, layer, pos):
-        ident={}
+    def getValue(self, layer, pos, bands):
         if layer.type() == QgsMapLayer.RasterLayer:
-            ident = layer.dataProvider().identify(pos, QgsRaster.IdentifyFormatValue ).results()
+            ident = {}
+            for band in bands:
+                bandvalue = layer.dataProvider().sample(pos, band)[0]
+                ident[band] = "no data" if math.isnan(bandvalue) else bandvalue
         elif layer.type() == QgsMapLayer.MeshLayer:
             try:                    
-                ident[1] = layer.datasetValue(self.meshDS, pos).scalar()
+                ident = {1:layer.datasetValue(self.meshDS, pos).scalar()}
             except:
-                ident[1] = None
+                ident = {1:None}
         else:
             ident = None
         return ident
@@ -301,8 +303,8 @@ class ValueWidget(QWidget, Ui_Widget):
             xres = extent.width() / layer.dataProvider().xSize()
             yres = extent.height() / layer.dataProvider().ySize()
             
-            rowCol["row"] = int(floor((extent.yMaximum() - pos.y()) / yres))
-            rowCol["col"] = int(floor((pos.x() - extent.xMinimum()) / xres))
+            rowCol["row"] = int(math.floor((extent.yMaximum() - pos.y()) / yres))
+            rowCol["col"] = int(math.floor((pos.x() - extent.xMinimum()) / xres))
         else:
             rowCol["row"] = ""
             rowCol["col"] = ""
@@ -412,6 +414,7 @@ class ValueWidget(QWidget, Ui_Widget):
               if not layer.dataProvider():
                 continue
 
+              activeBands = self.activeBandsForRaster(layer)
               ident = None
               if position is not None:
                 canvas = self.iface.mapCanvas()
@@ -419,24 +422,22 @@ class ValueWidget(QWidget, Ui_Widget):
                 # first test if point is within map layer extent 
                 # maintain same behaviour as in 1.8 and print out of extent
                 if not layer.dataProvider().extent().contains( pos ):
-                  ident = dict()
+                  ident = {iband:str(self.tr('out of extent')) for iband in activeBands}
                   rowCol = {"row":"","col":""}
-
-                  for iband in range(1,self.countBands(layer)+1):
-                    ident[iband] = str(self.tr('out of extent'))
+                  
                 # we can only use context if layer is not projected
                 elif layer.dataProvider().crs() != canvas.mapSettings().destinationCrs(): #Almerio: tinha no inicio: "canvas.hasCrsTransformEnabled() and " but it is always enabled
-                  ident = self.getValue(layer, pos)
+                  ident = self.getValue(layer, pos, activeBands)
                   rowCol = self.getRowCol(layer, pos)
                   
                 else:
                   extent = canvas.extent()
-                  width = round(extent.width() / canvas.mapUnitsPerPixel());
-                  height = round(extent.height() / canvas.mapUnitsPerPixel());
+                  width = round(extent.width() / canvas.mapUnitsPerPixel())
+                  height = round(extent.height() / canvas.mapUnitsPerPixel())
 
-                  extent = canvas.mapSettings().mapToLayerCoordinates( layer, extent );
+                  extent = canvas.mapSettings().mapToLayerCoordinates( layer, extent )
 
-                  ident = self.getValue(layer, pos)
+                  ident = self.getValue(layer, pos, activeBands)
                   rowCol = self.getRowCol(layer, pos)
                 
                 if not len( ident ) > 0:
@@ -450,23 +451,18 @@ class ValueWidget(QWidget, Ui_Widget):
                       ident[key] = layer.dataProvider().noDataValue(key)
 
               # bands displayed depends on cbxBands (all / active / selected)
-              activeBands = self.activeBandsForRaster(layer) 
-                  
               for iband in activeBands: # loop over the active bands
                 layernamewithband=layername
                 if layer.type() == QgsMapLayer.MeshLayer:
                     grpDS = self.meshGrpDS[layer.id()]
                     layernamewithband+=' '+'[{},{}]'.format(grpDS[0],grpDS[1])
-                if ident is not None and len(ident)>1:
+                if len(activeBands) > 1 or activeBands[0] != 1:
                     if layer.type() == QgsMapLayer.RasterLayer:
                         layernamewithband+=' '+layer.bandName(iband)
-
                 if not ident or iband not in ident: # should not happen
                   bandvalue = "?"
                 else:
                   bandvalue = ident[iband]
-                  if bandvalue is None:
-                      bandvalue = "no data"
                 
                 self.values.append((layernamewithband, str(bandvalue), str(rowCol["row"]), str(rowCol["col"])))
                 
