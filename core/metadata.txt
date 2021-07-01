@@ -4,7 +4,7 @@ qgisMinimumVersion = 2.99
 qgisMaximumVersion = 3.99
 description = Qgis plugin to display in table or plot values from raster layers (or mesh layers, from version 3.0.5) at the current mouse position
 category = Raster
-version = 3.0.13
+version = 3.0.14
 author = Jorge Almerio (maintainer)
 email=jorgealmerio@yahoo.com.br
 ; original author: Etienne Tourigny
@@ -12,6 +12,7 @@ email=jorgealmerio@yahoo.com.br
 ; other authors include : Richard Duivenvoorde, Ricardo Silva, Etienne Tourigny, Radim Blazek
 ; optional metadata entries
 changelog=
+    3.0.14: Fix issue #16: Error: ZeroDivisionError: float division by zero (by Mario-F-F)
     3.0.13: 
         Implemented query only selected bands (by Jean-François Bourdon)
         Always append band number tag if totalbands>1 (by Jean-François Bourdon)
