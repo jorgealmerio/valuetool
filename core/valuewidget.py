@@ -259,7 +259,7 @@ class ValueWidget(QWidget, Ui_Widget):
                     layer.type()==QgsMapLayer.RasterLayer and \
                     layer.dataProvider() and \
                     (layer.dataProvider().capabilities() & QgsRasterDataProvider.IdentifyValue) and \
-                    (layer.dataProvider().xSize() & layer.dataProvider().ySize()):
+                    (layer.dataProvider().xSize() and layer.dataProvider().ySize()):
                 layers.append(layer)
             if layer.type() == QgsMapLayer.MeshLayer:
                 layer.createMapRenderer(QgsRenderContext())
