@@ -256,7 +256,7 @@ class ValueWidget(QWidget, Ui_Widget):
 
         for layer in allLayers:
             if layer!=None and layer.isValid() and \
-                    layer.type()==QgsMapLayer.RasterLayer and \
+                    layer.providerType() == "gdal" and \
                     layer.dataProvider() and \
                     (layer.dataProvider().capabilities() & QgsRasterDataProvider.IdentifyValue) and \
                     (layer.dataProvider().xSize() and layer.dataProvider().ySize()):
