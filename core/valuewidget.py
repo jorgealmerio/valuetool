@@ -109,6 +109,7 @@ class ValueWidget(QWidget, Ui_Widget):
         self.cbxClick.setChecked( QSettings().value('plugins/valuetool/mouseClick', False, type=bool ) )
         cbxEnable = QSettings().value('plugins/valuetool/cbxEnable', True, type=bool ) 
         self.cbxEnable.setChecked( cbxEnable )
+        self.cbxEnable.setChecked( False )
         self.changeActive(cbxEnable)
 
         self.cbxDigits.setChecked(QSettings().value('plugins/valuetool/cbxDigits', False, type=bool ) )
