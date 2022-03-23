@@ -32,6 +32,53 @@ from .valuemaptool import ValueMapTool
 # initialize Qt resources from file resouces.py
 from . import resources_rc
 
+
+# To run TooltipRasterMapTool()
+from qgis.core import QgsApplication, QgsRasterLayer, QgsRaster
+from qgis.gui import QgsMapToolEmitPoint
+from PyQt5.QtCore import QTimer
+from PyQt5.QtGui import ( QMessageBox, QIcon, QAction, QMenu, QActionGroup,
+                          QWidgetAction, QToolTip )
+
+
+
+class TooltipRasterMapTool(QgsMapToolEmitPoint):
+  # Taken from https://gis.stackexchange.com/a/245398/
+  def __init__(self, iface):
+    self.iface = iface
+    self.canvas = self.iface.mapCanvas()
+    QgsMapToolEmitPoint.__init__(self, self.canvas)
+    self.timerMapTips = QTimer( self.canvas )
+    self.timerMapTips.timeout.connect(self.showMapTip)
+
+  def canvasPressEvent(self, e):
+    pass
+
+  def canvasReleaseEvent(self, e):
+    pass
+
+  def canvasMoveEvent(self, e):
+    if self.canvas.underMouse(): # Only if mouse is over the map
+      self.timerMapTips.start(0) # time in milliseconds"""
+
+  def deactivate(self):
+    self.timerMapTips.stop()
+
+  def showMapTip( self ):
+    self.timerMapTips.stop()
+    if self.canvas.underMouse():
+      rLayer = self.iface.activeLayer()
+      if type(rLayer) is QgsRasterLayer:
+        ident = rLayer.dataProvider().identify( self.toMapCoordinates(self.canvas.mouseLastXY()), QgsRaster.IdentifyFormatValue )
+        if ident.isValid():
+          text = ", ".join(['{0:g}'.format(r) for r in ident.results().values() if r is not None] )
+        else:
+          text = "Non valid value"
+        last_xy = self.canvas.mouseLastXY()
+        posGlobal = self.canvas.mapToGlobal(last_xy)
+        QToolTip.showText(posGlobal, text, self.canvas)
+
+
 class ValueTool(object):
   def __init__(self, iface):
     # save reference to the QGIS interface
@@ -56,14 +103,17 @@ class ValueTool(object):
     self.saveTool=None
     self.action.triggered.connect(self.activateTool)
     #self.tool.deactivate.connect(self.deactivateTool) #Almerio: desativei essa linha
+    self.tooltipRaster = TooltipRasterMapTool(self.iface)
 
     # create the widget to display information
     self.valuewidget = ValueWidget(self.iface)
     self.valuewidget.cbxClick.setVisible(False) #Almerio: disabled until find error cause on using it
+    self.valuewidget.cbxEnableToolTip.setEnabled(False)
     
     #self.tool.moved.connect(self.valuewidget.toolMoved) #Almerio: desativei essa linha
     #self.tool.pressed.connect(self.valuewidget.toolPressed) #Almerio: desativei essa linha
     self.valuewidget.cbxEnable.clicked.connect(self.toggleTool)
+    self.valuewidget.cbxEnableToolTip.clicked.connect(self.toggleToolTip)
     self.valuewidget.cbxClick.clicked.connect(self.toggleMouseClick)
     # self.valuewidget.btnSaveSettings.clicked.connect(self.saveSettings) #btn to save settings suppressed, save settings on unloading
 
@@ -99,6 +149,12 @@ class ValueTool(object):
 
   def toggleTool(self, active):
     self.activateTool() if active else self.deactivateTool()
+  
+  def toggleToolTip(self, active):
+    if active:
+      self.iface.mapCanvas().setMapTool(self.tooltipRaster)
+    else:
+      self.iface.mapCanvas().unsetMapTool(self.tooltipRaster) 
 
   def toggleMouseClick(self, toggle):
     if toggle:
@@ -117,6 +173,9 @@ class ValueTool(object):
       self.valuedockwidget.show()
     if changeActive:
       self.valuewidget.changeActive(True)
+      self.valuewidget.cbxEnableToolTip.setEnabled(True)
+      if self.valuewidget.cbxEnableToolTip.isChecked():
+        self.toggleToolTip(True)
 
   def deactivateTool(self, changeActive=True):
     QApplication.restoreOverrideCursor()
@@ -131,4 +190,6 @@ class ValueTool(object):
       self.tool.blockSignals(False)
     if changeActive:
       self.valuewidget.changeActive(False)
+      self.valuewidget.cbxEnableToolTip.setEnabled(False)
+      self.toggleToolTip(False)
         
