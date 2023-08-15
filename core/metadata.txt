@@ -4,15 +4,16 @@ qgisMinimumVersion = 2.99
 qgisMaximumVersion = 3.99
 description = Qgis plugin to display in table or plot values from raster layers (or mesh layers, from version 3.0.5) at the current mouse position
 category = Raster
-version = 3.0.16
+version = 3.0.17
 author = Jorge Almerio (maintainer)
 email=jorgealmerio@yahoo.com.br
 ; original author: Etienne Tourigny
 ; original author is no longer contributing, current maintainer is Richard Duivenvoorde or Jorge Almerio
-; other authors include : Richard Duivenvoorde, Ricardo Silva, Etienne Tourigny, Radim Blazek
+; other authors include : Richard Duivenvoorde, Ricardo Silva, Etienne Tourigny, Radim Blazek, Florian Jenn
 ; optional metadata entries
 changelog=
-	3.0.16: Feature Request #22: Add raster value as a tooltip (by Jean-François Bourdon)
+    3.0.17: Fix issue #26: Add support for PostGIS rasters (by Florian Jenn)
+    3.0.16: Feature Request #22: Add raster value as a tooltip (by Jean-François Bourdon)
     3.0.15: Fix issue #18: Error: ZeroDivisionError: float division by zero (by Jean-François Bourdon)
     3.0.14: Fix issue #16: Error: ZeroDivisionError: float division by zero (by Mario-F-F)
     3.0.13: 
