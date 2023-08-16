@@ -256,11 +256,11 @@ class ValueWidget(QWidget, Ui_Widget):
                     allLayers.append(layer)
 
         for layer in allLayers:
-            if layer!=None and layer.isValid() and \
-                    layer.providerType() == "gdal" and \
-                    layer.dataProvider() and \
-                    (layer.dataProvider().capabilities() & QgsRasterDataProvider.IdentifyValue) and \
-                    (layer.dataProvider().xSize() and layer.dataProvider().ySize()):
+            if (layer is not None and layer.isValid()
+                    and layer.providerType() in ("gdal", "postgresraster")
+                    and layer.dataProvider()
+                    and (layer.dataProvider().capabilities() & QgsRasterDataProvider.IdentifyValue)
+                    and (layer.dataProvider().xSize() and layer.dataProvider().ySize())):
                 layers.append(layer)
             if layer.type() == QgsMapLayer.MeshLayer:
                 layer.createMapRenderer(QgsRenderContext())
