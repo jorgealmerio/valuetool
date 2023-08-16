@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>365</width>
-    <height>319</height>
+    <width>357</width>
+    <height>309</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,16 +21,6 @@
      </property>
      <property name="text">
       <string>Enable</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="cbxEnableToolTip">
-     <property name="text">
-      <string>Enable tooltip</string>
-     </property>
-     <property name="toolTipButton" stdset="0">
-      <string>Enable tooltip</string>
      </property>
     </widget>
    </item>
