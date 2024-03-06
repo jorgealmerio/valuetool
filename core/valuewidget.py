@@ -357,7 +357,10 @@ class ValueWidget(QWidget, Ui_Widget):
             self.showValues()
             return
         
-        self.labelStatus.setText(self.tr('Coordinate:') + ' (%f, %f)' % (position.x(), position.y()))
+        numFormat = str("{:."+str(self.spinDigits.value())+"f}") #28 issue from jjimenezshaw request
+        strFmt = '\''+numFormat+ ','+numFormat+'\''
+        print(strFmt)
+        self.labelStatus.setText(self.tr('Coordinate:') + strFmt.format(position.x(), position.y()))
 
         needextremum = (self.tabWidget.currentIndex()==1) # if plot is shown
 
@@ -467,10 +470,12 @@ class ValueWidget(QWidget, Ui_Widget):
                 else:
                   bandvalue = ident[iband]
                 
-                self.values.append((layernamewithband, str(bandvalue), str(rowCol["row"]), str(rowCol["col"])))
+                self.values.append((layernamewithband, str(bandvalue), str(rowCol["row"]), str(rowCol["col"])))                
                 
                 # mwindowshz Pull Request
-                self.labelStatus.setText(self.tr('Coordinate:') + '{},{},{}'.format(position.x(), position.y(),bandvalue))   
+                numFormat = str("{:."+str(self.spinDigits.value())+"f}") #28 issue from jjimenezshaw request
+                strFmt = '\''+numFormat+ ','+numFormat+','+ numFormat+'\''
+                self.labelStatus.setText(self.tr('Coordinate:') + strFmt.format(position.x(), position.y(),bandvalue))
                 
                 if needextremum:
                   # estimated statistics
