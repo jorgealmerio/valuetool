@@ -257,7 +257,7 @@ class ValueWidget(QWidget, Ui_Widget):
 
         for layer in allLayers:
             if (layer is not None and layer.isValid()
-                    and layer.providerType() in ("gdal", "postgresraster")
+                    and layer.providerType() in ("gdal", "postgresraster", "datacube_viewer")
                     and layer.dataProvider()
                     and (layer.dataProvider().capabilities() & QgsRasterDataProvider.IdentifyValue)
                     and (layer.dataProvider().xSize() and layer.dataProvider().ySize())):
