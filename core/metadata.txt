@@ -5,7 +5,7 @@ qgisMaximumVersion = 4.99
 supportsQt6 = True
 description = Qgis plugin to display in table or plot values from raster layers (or mesh layers, from version 3.0.5) at the current mouse position
 category = Raster
-version = 3.1.0
+version = 3.1.1
 author = Jorge Almerio (maintainer)
 email=jorgealmerio@yahoo.com.br
 ; original author: Etienne Tourigny
@@ -13,6 +13,7 @@ email=jorgealmerio@yahoo.com.br
 ; other authors include : Richard Duivenvoorde, Ricardo Silva, Etienne Tourigny, Radim Blazek, Florian Jenn
 ; optional metadata entries
 changelog=
+	3.1.1: Added datacube_viewer provider (by ColinMoldenhauer)
     3.1.0: Issue #32: Support Qt6 builds.
 	3.0.19: Issue #29: Bug fix for mouse move out of extent, thanks to jjimenezshaw.
 	3.0.18: Issue #28: Status bar Coodinates and value now follow Decimal precision from Decimals spinbox (by Jorge Almerio)
